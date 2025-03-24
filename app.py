@@ -16,11 +16,11 @@ def generate_response(user_input):
         "prompt": medical_prompt,
         "stream": False,
         "options": {
-            "num_ctx": 200  # Lower context size to reduce RAM usage
+            "num_ctx": 160  # Lower context size to reduce RAM usage
         }
     }
     try:
-        response = requests.post(OLLAMA_URL, json=payload, timeout=20)
+        response = requests.post(OLLAMA_URL, json=payload, timeout=30)
         response.raise_for_status()
         return response.json().get("response", "I'm sorry, I couldn't generate a medical response.")
     except requests.exceptions.RequestException as e:
