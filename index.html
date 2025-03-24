@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medical Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f4; }
+    .header { text-align: center; padding: 20px; background: #27337eda; color: white; }
+    .chat-list { padding: 20px; height: 400px; overflow-y: auto; display: flex; flex-direction: column; }
+    .typing-area { position: fixed; bottom: 0; width: 100%; background: white; padding: 10px; display: flex; }
+    .typing-input { flex: 1; padding: 10px; border: 1px solid #ccc; }
+    .icon { cursor: pointer; padding: 10px; background: #000000; color: white; border: none; }
+    .message { padding: 10px; margin: 5px; border-radius: 5px; max-width: 80%; }
+    .outgoing { background: #323035; color: white; align-self: flex-end; }
+    .incoming { background: #ddd; align-self: flex-start; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Hello, there</h1>
+    <p>How can I help you today?</p>
+  </header>
+  <div class="chat-list" id="chatContainer"></div>
+  <div class="typing-area">
+    <input type="text" id="userInput" class="typing-input" placeholder="Enter a prompt here" required>
+    <button id="sendBtn" class="icon">Send</button>
+  </div>
+  <script>
+    const chatContainer = document.getElementById("chatContainer");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const API_URL = "/chat"; // Use relative URL for compatibility
+
+    function appendMessage(content, className) {
+      const div = document.createElement("div");
+      div.classList.add("message", className);
+      div.innerText = content;
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    async function fetchResponse(userMessage) {
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userMessage })
+        });
+        const data = await response.json();
+        appendMessage(data.reply, "incoming");
+      } catch (error) {
+        appendMessage("Error: Unable to fetch response", "incoming");
+      }
+    }
+
+    sendBtn.addEventListener("click", () => {
+      const message = userInput.value.trim();
+      if (message) {
+        appendMessage(message, "outgoing");
+        userInput.value = "";
+        fetchResponse(message);
+      }
+    });
+
+    userInput.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") sendBtn.click();
+    });
+  </script>
+</body>
+</html>
